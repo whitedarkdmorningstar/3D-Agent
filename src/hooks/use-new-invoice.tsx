@@ -5,7 +5,7 @@ import { TextInput } from "react-native";
 
 interface StateType extends Invoice {
   isLoading: boolean;
-  isError: string;
+  error: string;
 }
 
 const initialDigit: InvoiceDigit = {
@@ -20,18 +20,17 @@ const initialState: StateType = {
   total_amount: 0,
   note: "",
   isLoading: false, // Ture when writing to sqlite
-  isError: "အမည် ဖြည့်သွင်းရန် ကျန်နေပါသည်",
+  error: "",
 };
 
 interface NewInvoiceHook extends StateType {
   nameRef: RefObject<TextInput | null>;
-  noteRef: RefObject<TextInput | null>;
   addNewDigit: () => void;
   addRoundDigits: () => void;
   removeDigit: (id: string) => void;
   changeDigit: (invoiceDigit: Partial<InvoiceDigit>) => void;
   focusNameInput: () => void;
-  focusNoteInput: () => void;
+  handleSubmit: () => Promise<void>;
 }
 
 export function useNewInvoice(): NewInvoiceHook {
@@ -55,6 +54,7 @@ export function useNewInvoice(): NewInvoiceHook {
       setState((prev) => ({
         ...prev,
         digits: prev.digits.filter(({ digit_id }) => id !== digit_id),
+        isError: "",
       })),
     [],
   );
@@ -68,6 +68,7 @@ export function useNewInvoice(): NewInvoiceHook {
             ? { ...digit, ...invoiceDigit }
             : digit,
         ),
+        isError: "",
       })),
     [],
   );
@@ -96,27 +97,21 @@ export function useNewInvoice(): NewInvoiceHook {
 
   // Focus input
   const nameRef = useRef<TextInput>(null);
-  const noteRef = useRef<TextInput>(null);
 
   const focusNameInput = useCallback(
     () => nameRef.current && nameRef.current.focus(),
     [],
   );
 
-  const focusNoteInput = useCallback(
-    () => noteRef.current && noteRef.current.focus(),
-    [],
-  );
+  const handleSubmit = useCallback(async () => {}, []);
 
   return {
     ...state,
     nameRef,
-    noteRef,
     addNewDigit,
     addRoundDigits,
     removeDigit,
     changeDigit,
     focusNameInput,
-    focusNoteInput,
   };
 }

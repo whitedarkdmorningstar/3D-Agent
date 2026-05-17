@@ -2,6 +2,7 @@ import { InvoiceDigit } from "@/constants/invoice/schema";
 import { useNewInvoice } from "@/hooks/use-new-invoice";
 import { useCallback } from "react";
 import { List } from "react-native-paper";
+import Alert from "../common/alert";
 import Button from "../common/button";
 import TextInput from "../common/text-input";
 import Row from "../layout/row";
@@ -58,11 +59,12 @@ export default function InvoiceForm() {
       </Row>
       <TextInput
         multiline
-        placeholder="မှတ်စု (ဥပမာ - ရှင်းပြီး< ကျန်ငွေ မည်မျှ)"
+        placeholder="မှတ်စု (ဥပမာ - ရှင်းပြီး။ ကျန်ငွေ မည်မျှ)"
         numberOfLines={4}
         height={100}
         textInputStyle={{ textAlignVertical: "top" }}
       />
+      <Alert>{invoice.error}</Alert>
       <Button loading={invoice.isLoading}>
         {invoice.isLoading ? "ပြေစာ ဖန်တီးနေသည် ..." : "ပြေစာ ဖန်တီးမည်"}
       </Button>

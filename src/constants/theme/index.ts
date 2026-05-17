@@ -132,9 +132,9 @@ export const FONTS: Fonts = {
   bodyLarge: getMD3Object(16),
   bodyMedium: getMD3Object(16),
   bodySmall: getMD3Object(12),
-  labelLarge: getMD3Object(14),
-  labelMedium: getMD3Object(12),
-  labelSmall: getMD3Object(11),
+  labelLarge: getMD3Object(16),
+  labelMedium: getMD3Object(14),
+  labelSmall: getMD3Object(12),
 };
 
 const ANIMATION = { scale: 0.7 };

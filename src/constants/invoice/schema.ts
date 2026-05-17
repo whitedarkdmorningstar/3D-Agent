@@ -1,4 +1,5 @@
 import z from "zod";
+import { weekSchema, yearSchema } from "../settings/schema";
 
 export const numberSchema = z.coerce
   .number({ error: "ဂဏန်းဖြစ်ရပါမည်" })
@@ -34,6 +35,12 @@ export const invoiceSchema = z.object({
   note: z.string().optional(),
 });
 
+export const invoiceInputSchema = z.object({
+  ...invoiceSchema.shape,
+  year: yearSchema,
+  week: weekSchema,
+});
+
 // Types
 export type Number = z.infer<typeof numberSchema>;
 export type ThreeDigit = z.infer<typeof threeDigitSchema>;
@@ -41,3 +48,4 @@ export type OrderBy = z.infer<typeof orderBySchema>;
 export type Order = z.infer<typeof orderSchema>;
 export type InvoiceDigit = z.infer<typeof invoiceDigitSchema>;
 export type Invoice = z.infer<typeof invoiceSchema>;
+export type InvoiceInput = z.infer<typeof invoiceInputSchema>;
