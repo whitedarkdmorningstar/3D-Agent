@@ -24,13 +24,27 @@ function App() {
         <ThemeProvider value={theme}>
           <Stack
             screenOptions={{
-              animation: "slide_from_right",
-              animationDuration: 200,
+              animation: "ios_from_right",
             }}
           >
             <Stack.Screen
               name={"(tabs)"}
               options={{ title: "Tabs", headerShown: false }}
+            />
+            <Stack.Screen
+              name={"invoice/[id]"}
+              options={({ route }: any) => ({
+                title: `စာရင်းအမှတ် #${route.params.id}`,
+              })}
+            />
+            <Stack.Screen name={"invoices"} options={{ title: "Invoices" }} />
+            <Stack.Screen
+              name={"customer/[name]"}
+              options={{ title: "Loading ..." }}
+            />
+            <Stack.Screen
+              name={"customers"}
+              options={{ title: "စျေးဝယ်များ" }}
             />
           </Stack>
           <StatusBar style={statusBarStyle} />

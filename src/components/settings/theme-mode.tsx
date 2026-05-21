@@ -1,6 +1,7 @@
 import { THEME_MODE } from "@/constants/settings";
 import useSettings from "@/hooks/use-settings";
-import { Card, List } from "react-native-paper";
+import { List } from "react-native-paper";
+import Card from "../common/card";
 import RadioGroup, { type RadioItem } from "../common/radio-group";
 
 const themeMode: RadioItem[] = [

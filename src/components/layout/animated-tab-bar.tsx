@@ -1,13 +1,14 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { LayoutChangeEvent, TouchableOpacity } from "react-native";
-import { Surface, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import Card from "../common/card";
 
 const TAB_BAR = {
   ANIMATION_DURATION: 200,
@@ -65,7 +66,9 @@ export default function AnimatedTabBar({
 
       const isFocused = state.index === index;
 
-      const color = isFocused ? colors.primary : colors.onSurfaceDisabled;
+      const color = isFocused
+        ? colors.onPrimaryContainer
+        : colors.onSurfaceDisabled;
 
       const onPress = () => {
         tabPositionX.value = withTiming(index * buttonWidth + 8, {
@@ -101,10 +104,12 @@ export default function AnimatedTabBar({
       // Don't hide the text on blur
       const animatedTextStyle = useAnimatedStyle(() => ({
         transform: [{ scale: interpolate(scale.value, [0, 1], [1, 1.1]) }],
+        top: interpolate(scale.value, [0, 1], [0, 1]),
       }));
 
       const animatedIconStyle = useAnimatedStyle(() => ({
         transform: [{ scale: interpolate(scale.value, [0, 1], [1, 1.1]) }],
+        top: interpolate(scale.value, [0, 1], [0, 1]),
       }));
 
       return (
@@ -142,20 +147,21 @@ export default function AnimatedTabBar({
   );
 
   return (
-    <Surface
+    <Card
       onLayout={onTabBarLayout}
       style={{
         position: "absolute",
         bottom: 24,
-        elevation: 8,
-        borderRadius: 64,
+        borderRadius: 100,
         start: 0,
         end: 0,
+        marginHorizontal: 64,
+      }}
+      contentStyle={{
         flexDirection: "row",
+        height: height,
         alignItems: "center",
         justifyContent: "space-between",
-        height: height,
-        marginHorizontal: 64,
       }}
     >
       <Animated.View
@@ -165,12 +171,12 @@ export default function AnimatedTabBar({
             position: "absolute",
             width: buttonWidth - 16,
             height: 52,
-            borderRadius: 64,
-            backgroundColor: colors.surface,
+            borderRadius: 100,
+            backgroundColor: colors.onPrimary,
           },
         ]}
       />
       {state.routes.map(renderItem)}
-    </Surface>
+    </Card>
   );
 }

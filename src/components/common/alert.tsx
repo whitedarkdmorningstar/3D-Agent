@@ -11,29 +11,34 @@ import { Icon, Text } from "react-native-paper";
 
 interface AlertProps extends Omit<ViewProps, "children"> {
   variant?: Variant;
+  title: string;
+  titleStyle?: StyleProp<TextStyle>;
+  description?: string;
+  descriptionStyle?: StyleProp<TextStyle>;
   children?: string | ReactNode;
-  textStyle?: StyleProp<TextStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
   source?: string;
   hideIcon?: boolean;
 }
 
 export default function Alert({
   variant = "error",
+  title,
+  description,
   children,
   hideIcon = false,
   ...props
 }: AlertProps) {
-  const { colors, roundness } = useTheme();
+  const { colors, roundness, fonts } = useTheme();
+
   const alertStyle: StyleProp<ViewStyle> = useMemo(
     () => ({
       backgroundColor: getVariantContainerColor(colors, variant),
       borderColor: getVariantColor(colors, variant),
       borderWidth: 1,
-      borderRadius: roundness,
+      borderRadius: roundness * roundness,
       padding: 16,
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: 8,
+      gap: 16,
     }),
     [variant, colors, roundness],
   );
@@ -66,25 +71,27 @@ export default function Alert({
     [variant],
   );
 
-  if (!children) return null;
+  if (!Boolean(title)) return null;
 
   return (
     <View style={[alertStyle, props.style]}>
-      {!hideIcon && (
-        <Icon source={props.source || source} size={24} color={iconColor} />
-      )}
-      {typeof children === "string" ? (
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        {!hideIcon && source && (
+          <Icon source={source} size={24} color={iconColor} />
+        )}
         <Text
-          style={[
-            { color: textColor, flex: 1, textAlign: "left" },
-            props.textStyle,
-          ]}
+          style={[{ color: textColor }, fonts.titleMedium, props.titleStyle]}
         >
-          {children}
+          {title}
         </Text>
-      ) : (
-        <View style={{ flex: 1 }}>{children}</View>
+      </View>
+
+      {Boolean(description) && (
+        <Text style={[{ color: textColor }, props.descriptionStyle]}>
+          {description}
+        </Text>
       )}
+      {Boolean(children) && <View style={props.contentStyle}>{children}</View>}
     </View>
   );
 }

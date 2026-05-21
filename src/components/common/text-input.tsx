@@ -85,10 +85,10 @@ export default forwardRef<RNTextInput, TextInputProps>((props, ref) => {
           style={[
             {
               flex: 1,
-              fontSize: fonts.default.fontSize,
               color: colors.onSurface,
               paddingVertical: 8,
             },
+            fonts.default,
             props.textInputStyle,
           ]}
           placeholderTextColor={colors.onSurfaceDisabled}

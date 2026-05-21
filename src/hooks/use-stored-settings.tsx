@@ -1,6 +1,7 @@
 /**Splashscreen will be handled here */
 import { DEFAULT_SETTINGS } from "@/constants/settings";
-import { Settings } from "@/constants/settings/types";
+import { Settings } from "@/constants/settings/schema";
+import { createTablesIfNotExistAsync } from "@/database/create";
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { SplashScreen } from "expo-router";
 import { useEffect } from "react";
@@ -22,8 +23,9 @@ export default function useStoredSettings(
   useEffect(() => {
     const getStoredSettings = async () => {
       try {
-        // TODO: Remove this after testing
-        await removeItem();
+        // Create table
+        await createTablesIfNotExistAsync();
+
         const storedSettings = await getItem();
 
         // Mixed with default settings

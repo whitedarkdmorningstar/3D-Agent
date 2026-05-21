@@ -1,10 +1,13 @@
+import useTheme from "@/hooks/use-theme";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleProp, TextStyle, View, ViewStyle } from "react-native";
 import { IconButton, Text, TextInput } from "react-native-paper";
 
 const ENG_NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-function toNativeNumber(value: number, nativeNumbers = ENG_NUMBERS) {
+function toNativeNumber(value: number, nativeNumbers?: string[]) {
+  if (!nativeNumbers) return value;
+
   return value
     .toString()
     .split("")
@@ -16,8 +19,7 @@ export interface NumberInputProps {
   minimumValue?: number;
   maximumValue?: number;
   step?: number;
-  value?: number;
-  defaultValue?: number;
+  value: number;
   iconSize?: number;
   buttonMode?: "contained" | "contained-tonal" | "outlined";
   onValueChange: (value: number) => void;
@@ -30,9 +32,8 @@ export interface NumberInputProps {
 }
 
 export default function NumberInput({
-  nativeNumbers = ENG_NUMBERS,
+  nativeNumbers,
   value,
-  defaultValue,
   minimumValue = 0,
   maximumValue = 100,
   step = 1,
@@ -45,39 +46,22 @@ export default function NumberInput({
   iconSize = 20,
   buttonMode = "contained",
 }: NumberInputProps) {
-  const [internalValue, setInternalValue] = useState<number>(defaultValue || 0);
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? value! : internalValue;
-
-  const setValue = useCallback(
-    (updater: (prev: number) => number) => {
-      if (isControlled) {
-        const next = updater(currentValue);
-        next !== currentValue && onValueChange?.(next);
-      } else {
-        setInternalValue((prev) => {
-          const next = updater(prev);
-          return next;
-        });
-      }
-    },
-    [isControlled, onValueChange, currentValue],
-  );
+  const [internalValue, setInternalValue] = useState<number>(value || 0);
 
   useEffect(() => {
     if (internalValue !== value) onValueChange?.(internalValue);
   }, [internalValue, onValueChange]);
 
   const label = useMemo(
-    () => toNativeNumber(currentValue, nativeNumbers),
-    [currentValue, nativeNumbers],
+    () => toNativeNumber(internalValue, nativeNumbers),
+    [internalValue, nativeNumbers],
   );
 
   const intervalRef = useRef<number | null>(null);
 
   const updateValue = useCallback(
     (delta: number) => {
-      setValue((prev) =>
+      setInternalValue((prev) =>
         Math.min(Math.max(prev + delta, minimumValue), maximumValue),
       );
     },
@@ -87,12 +71,12 @@ export default function NumberInput({
   const startContinuousUpdate = useCallback(
     (delta: number) => {
       intervalRef.current = setInterval(() => {
-        setValue((prev) =>
+        setInternalValue((prev) =>
           Math.min(Math.max(prev + delta, minimumValue), maximumValue),
         );
       }, 100);
     },
-    [setValue, minimumValue, maximumValue],
+    [setInternalValue, minimumValue, maximumValue],
   );
 
   const stopContinuousUpdate = useCallback(() => {
@@ -101,6 +85,18 @@ export default function NumberInput({
       intervalRef.current = null;
     }
   }, []);
+
+  const onChangeText = useCallback((value: string) => {
+    let newValue = Number(value);
+    if (!isNaN(newValue)) {
+      newValue = Math.min(Math.max(newValue, minimumValue), maximumValue);
+      onValueChange?.(newValue);
+    } else {
+      onValueChange?.(0);
+    }
+  }, []);
+
+  const { colors } = useTheme();
 
   useEffect(() => {
     return stopContinuousUpdate;
@@ -121,6 +117,7 @@ export default function NumberInput({
       {showButtons && (
         <IconButton
           icon="minus"
+          iconColor={colors.text}
           delayLongPress={300}
           onPressIn={() => updateValue(-step)}
           onLongPress={() => startContinuousUpdate(-step)}
@@ -141,23 +138,15 @@ export default function NumberInput({
           keyboardType="numeric"
           dense
           mode="outlined"
-          value={label}
+          value={label.toString()}
           style={[{ textAlign: "center" }, textInputStyle]}
-          onChangeText={(value) => {
-            let newValue = Number(value);
-            if (!Number.isNaN(newValue)) {
-              newValue = Math.min(
-                Math.max(newValue, minimumValue),
-                maximumValue,
-              );
-              onValueChange?.(newValue);
-            }
-          }}
+          onChangeText={onChangeText}
         />
       )}
       {showButtons && (
         <IconButton
           icon="plus"
+          iconColor={colors.text}
           delayLongPress={300}
           onPressIn={() => updateValue(step)}
           onLongPress={() => startContinuousUpdate(step)}

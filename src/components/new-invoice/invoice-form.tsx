@@ -35,18 +35,19 @@ export default function InvoiceForm() {
     <List.Section style={{ gap: 16 }}>
       <List.Subheader>ပြေစာ</List.Subheader>
 
-      <TextInput ref={invoice.nameRef} left={"အမည်"} />
+      <TextInput
+        ref={invoice.nameRef}
+        value={invoice.name}
+        left={"အမည်"}
+        onChangeText={invoice.onNameChange}
+      />
 
       {/**Mapping invoice digits */}
       {invoice.digits.map(renderItem)}
 
       <Row justifyContent="space-between">
-        <Button
-          icon={"plus"}
-          mode={"contained-tonal"}
-          onPress={invoice.addRoundDigits}
-        >
-          ADD ROUND
+        <Button mode={"contained-tonal"} onPress={invoice.addRoundDigits}>
+          R
         </Button>
 
         <Button
@@ -54,18 +55,24 @@ export default function InvoiceForm() {
           mode={"contained-tonal"}
           onPress={invoice.addNewDigit}
         >
-          Add New
+          New Digit
         </Button>
       </Row>
       <TextInput
         multiline
         placeholder="မှတ်စု (ဥပမာ - ရှင်းပြီး။ ကျန်ငွေ မည်မျှ)"
         numberOfLines={4}
-        height={100}
+        height={120}
         textInputStyle={{ textAlignVertical: "top" }}
+        value={invoice.note}
+        onChangeText={invoice.onNoteChange}
       />
-      <Alert>{invoice.error}</Alert>
-      <Button loading={invoice.isLoading}>
+      <Alert title={invoice.error} />
+      <Button
+        loading={invoice.isLoading}
+        onPress={invoice.handleSubmit}
+        disabled={invoice.isLoading || Boolean(invoice.error)}
+      >
         {invoice.isLoading ? "ပြေစာ ဖန်တီးနေသည် ..." : "ပြေစာ ဖန်တီးမည်"}
       </Button>
     </List.Section>

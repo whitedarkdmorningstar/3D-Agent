@@ -3,7 +3,7 @@ import {
   numberSchema,
   ThreeDigit,
 } from "@/constants/invoice/schema";
-import { replaceDigit } from "@/utils/numbers";
+import { replaceDigit } from "@/utils/invoice";
 import { RefObject, useCallback, useRef } from "react";
 import { TextInput, TextInputKeyPressEvent } from "react-native";
 import { z } from "zod";
@@ -14,7 +14,7 @@ export interface NewInvoiceDigitProps extends InvoiceDigit {
   removeDigit: (id: string) => void;
 }
 
-type NewInvoiceDigitHook = {
+type NewInvoiceDigitHookOutput = {
   firstRef: RefObject<TextInput | null>;
   secondRef: RefObject<TextInput | null>;
   thirdRef: RefObject<TextInput | null>;
@@ -34,7 +34,7 @@ export default function useNewInvoiceDigit({
   changeDigit,
   focusNameInput,
   ...props
-}: NewInvoiceDigitProps): NewInvoiceDigitHook {
+}: NewInvoiceDigitProps): NewInvoiceDigitHookOutput {
   const firstRef = useRef<TextInput>(null);
   const secondRef = useRef<TextInput>(null);
   const thirdRef = useRef<TextInput>(null);
@@ -115,8 +115,9 @@ export default function useNewInvoiceDigit({
   );
 
   // handle amount change
+  // TODO: decimal is not allowed yet, but we can add it in the future
   const onChangeAmount = useCallback(
-    (value: string) => changeDigit({ digit_id, amount: Number(value) }),
+    (value: string) => changeDigit({ digit_id, amount: Number(value) || 0 }),
     [changeDigit],
   );
 

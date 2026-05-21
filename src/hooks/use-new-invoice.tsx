@@ -1,7 +1,17 @@
-import { Invoice, InvoiceDigit, ThreeDigit } from "@/constants/invoice/schema";
-import { getId, getRoundDigits } from "@/utils/numbers";
+import {
+  Invoice,
+  InvoiceDigit,
+  InvoiceInput,
+  invoiceInputSchema,
+  ThreeDigit,
+} from "@/constants/invoice/schema";
+import { insertInvoiceAsync } from "@/database/create";
+import { getRoundDigits } from "@/utils/invoice";
+import { getId } from "@/utils/numbers";
 import { RefObject, useCallback, useRef, useState } from "react";
 import { TextInput } from "react-native";
+import { z } from "zod";
+import useSettings from "./use-settings";
 
 interface StateType extends Invoice {
   isLoading: boolean;
@@ -17,7 +27,6 @@ const initialDigit: InvoiceDigit = {
 const initialState: StateType = {
   name: "",
   digits: [initialDigit],
-  total_amount: 0,
   note: "",
   isLoading: false, // Ture when writing to sqlite
   error: "",
@@ -25,6 +34,8 @@ const initialState: StateType = {
 
 interface NewInvoiceHook extends StateType {
   nameRef: RefObject<TextInput | null>;
+  onNameChange: (name: string) => void;
+  onNoteChange: (note: string) => void;
   addNewDigit: () => void;
   addRoundDigits: () => void;
   removeDigit: (id: string) => void;
@@ -35,6 +46,17 @@ interface NewInvoiceHook extends StateType {
 
 export function useNewInvoice(): NewInvoiceHook {
   const [state, setState] = useState<StateType>(initialState);
+
+  // Handle name/note change
+  const onNameChange = useCallback(
+    (name: string) => setState((prev) => ({ ...prev, name, error: "" })),
+    [],
+  );
+
+  const onNoteChange = useCallback(
+    (note: string) => setState((prev) => ({ ...prev, note })),
+    [],
+  );
 
   // Add/Remove new digit
   const addNewDigit = useCallback(
@@ -54,7 +76,7 @@ export function useNewInvoice(): NewInvoiceHook {
       setState((prev) => ({
         ...prev,
         digits: prev.digits.filter(({ digit_id }) => id !== digit_id),
-        isError: "",
+        error: "",
       })),
     [],
   );
@@ -68,7 +90,7 @@ export function useNewInvoice(): NewInvoiceHook {
             ? { ...digit, ...invoiceDigit }
             : digit,
         ),
-        isError: "",
+        error: "",
       })),
     [],
   );
@@ -103,15 +125,54 @@ export function useNewInvoice(): NewInvoiceHook {
     [],
   );
 
-  const handleSubmit = useCallback(async () => {}, []);
+  // Get year and week from settings
+  const { year, week } = useSettings();
+
+  const handleSubmit = useCallback(async () => {
+    setState((prev) => ({ ...prev, isLoading: true, error: "" }));
+
+    const invoiceInput: InvoiceInput = {
+      name: state.name,
+      digits: state.digits,
+      note: state.note,
+      year,
+      week,
+    };
+
+    try {
+      // validate invoice digits and invoice input
+      invoiceInputSchema.parse(invoiceInput);
+
+      const result = await insertInvoiceAsync(invoiceInput);
+
+      // Reset form after submit
+      if (result) {
+        setTimeout(() => setState(initialState), 1000);
+        focusNameInput();
+      } else {
+        // TODO: Handle error
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setState((prev) => ({
+          ...prev,
+          error: error.issues[0].message,
+          isLoading: false,
+        }));
+      }
+    }
+  }, [year, week, state.digits, state.name, state.note]);
 
   return {
     ...state,
     nameRef,
+    onNameChange,
+    onNoteChange,
     addNewDigit,
     addRoundDigits,
     removeDigit,
     changeDigit,
     focusNameInput,
+    handleSubmit,
   };
 }

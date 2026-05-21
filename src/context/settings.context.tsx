@@ -1,6 +1,5 @@
-import { Week } from "@/constants/invoice/types";
 import { DEFAULT_SETTINGS } from "@/constants/settings";
-import { Settings } from "@/constants/settings/types";
+import { Settings, Week } from "@/constants/settings/schema";
 import useStoredSettings from "@/hooks/use-stored-settings";
 import React, { useCallback } from "react";
 

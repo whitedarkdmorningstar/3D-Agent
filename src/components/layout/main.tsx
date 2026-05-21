@@ -20,22 +20,16 @@ export default function Main({
   isScrollable = false,
   ...props
 }: MainProps) {
+  const style = { padding: sizes[size], gap: sizes[size], paddingBottom: 100 };
+
   if (isScrollable) {
     return (
       <ScrollView
         {...props}
-        contentContainerStyle={[
-          { padding: sizes[size], gap: sizes[size] },
-          props.contentContainerStyle,
-        ]}
+        contentContainerStyle={[style, props.contentContainerStyle]}
       />
     );
   }
 
-  return (
-    <View
-      {...props}
-      style={[{ padding: sizes[size], gap: sizes[size] }, props.style]}
-    />
-  );
+  return <View {...props} style={[style, props.style]} />;
 }

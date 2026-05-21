@@ -1,10 +1,24 @@
+import ItemList from "@/components/dashboard/item-list";
 import Main from "@/components/layout/main";
-import { Text } from "react-native-paper";
+import useDashboard from "@/hooks/use-dashboard";
 
-export default function Home() {
+export default function Dashboard() {
+  const { invoices, isLoading, customers } = useDashboard();
+
   return (
-    <Main>
-      <Text>Hello, world!</Text>
+    <Main isScrollable>
+      <ItemList
+        title={"ယခုအပတ် စာရင်းများ"}
+        href={"/invoices"}
+        data={invoices}
+        isLoading={isLoading}
+      />
+      <ItemList
+        title={"စျေးဝယ်များ"}
+        href={"/customers"}
+        data={customers}
+        isLoading={isLoading}
+      />
     </Main>
   );
 }

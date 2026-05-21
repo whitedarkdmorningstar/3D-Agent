@@ -1,5 +1,5 @@
+import { View } from "react-native";
 import {
-  Card,
   Modal as PaperModal,
   ModalProps as PaperModalProps,
   Portal,
@@ -11,9 +11,15 @@ export default function Modal(props: ModalProps) {
   return (
     <Portal>
       <PaperModal {...props}>
-        <Card style={{ maxWidth: 400, width: "88%", alignSelf: "center" }}>
+        <View
+          style={{
+            maxWidth: 400,
+            width: "88%",
+            alignSelf: "center",
+          }}
+        >
           {props.children}
-        </Card>
+        </View>
       </PaperModal>
     </Portal>
   );

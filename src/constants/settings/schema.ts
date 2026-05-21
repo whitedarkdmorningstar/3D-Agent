@@ -4,12 +4,15 @@ export const themeModeSchema = z.enum(["light", "dark", "system"]);
 
 export const languageSchema = z.enum(["english", "myanmar"]);
 
-export const weekSchema = z.coerce.number().min(0).max(24);
+export const weekSchema = z.coerce
+  .number()
+  .min(1, "အပတ်စဥ်သည် အနည်းဆုံး ၁ ဖြစ်ရမည်")
+  .max(24, "အပတ်စဥ်သည် အများဆုံး ၂၄ ဖြစ်ရမည်");
 
 export const yearSchema = z.coerce
   .number()
-  .min(1900)
-  .max(9999)
+  .min(1900, "နှစ်သည် အနည်းဆုံး ၁၉၀၀ ဖြစ်ရမည်")
+  .max(9999, "နှစ်သည် အများဆုံး ၉၉၉၉ ဖြစ်ရမည်")
   .optional()
   .default(new Date().getFullYear());
 

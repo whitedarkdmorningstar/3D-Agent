@@ -3,13 +3,14 @@ import { db } from "./db";
 
 /**
  * Invoices
- * | id | name | total_amount | created_at | timestamp | updated_at | note | year | week | trashed |
+ * | id | name | digits | total_amount | created_at | timestamp | updated_at | note | year | week | trashed |
  */
 
 export async function createTablesIfNotExistAsync() {
   await db.execAsync(`CREATE TABLE IF NOT EXISTS invoices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
+        digit_names TEXT,
         total_amount INTEGER NOT NULL,
         created_at INTEGER NOT NULL,
         timestamp INTEGER NOT NULL,
@@ -31,33 +32,75 @@ export async function createTablesIfNotExistAsync() {
 
 // Insert invoice
 export async function insertInvoiceAsync(invoiceInput: InvoiceInput) {
-  const timestamp = new Date().getTime();
+  try {
+    const timestamp = new Date().getTime();
 
-  const { lastInsertRowId } = await db.runAsync(
-    `INSERT INTO invoices (name, total_amount, created_at, timestamp, updated_at, note, year, week, trashed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      invoiceInput.name,
-      invoiceInput.total_amount,
-      timestamp,
-      timestamp,
-      null,
-      invoiceInput.note || "",
-      invoiceInput.year,
-      invoiceInput.week,
-      0,
-    ],
-  );
+    let total_amount = getTotalAmount(invoiceInput.digits);
 
-  // After invoice id is returned, add each digit to digits table
-  if (!Boolean(lastInsertRowId))
-    return console.error("Failed to insert invoice");
-
-  for (const digit of invoiceInput.digits) {
-    await db.runAsync(
-      `INSERT INTO digits (digit_id, digit, amount, invoice_id) VALUES (?, ?, ?, ?)`,
-      [digit.digit_id, digit.digit, digit.amount, lastInsertRowId],
+    const { lastInsertRowId } = await db.runAsync(
+      `INSERT INTO invoices (name, digit_names, total_amount, created_at, timestamp, updated_at, note, year, week, trashed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        invoiceInput.name,
+        invoiceInput.digits.map((d) => d.digit).join(","),
+        total_amount,
+        timestamp,
+        timestamp,
+        null,
+        invoiceInput.note || "",
+        invoiceInput.year,
+        invoiceInput.week,
+        0,
+      ],
     );
-  }
 
-  return true;
+    // After invoice id is returned, add each digit to digits table
+    if (!Boolean(lastInsertRowId)) {
+      console.error("Failed to insert invoice");
+      return false;
+    }
+
+    for (const digit of invoiceInput.digits) {
+      await db.runAsync(
+        `INSERT INTO digits (digit_id, digit, amount, invoice_id) VALUES (?, ?, ?, ?)`,
+        [digit.digit_id, digit.digit, digit.amount, lastInsertRowId],
+      );
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error inserting invoice:", error);
+    return false;
+  }
+}
+
+// Populate random data
+import { getTotalAmount } from "@/utils/invoice";
+import { getId } from "@/utils/numbers";
+import { faker } from "@faker-js/faker";
+
+export async function seedRandomDataAsync(count: number = 1000) {
+  for (let i = 0; i < count; i++) {
+    const name = faker.person.fullName();
+    const digits = new Array(faker.number.int({ min: 1, max: 10 }))
+      .fill(0)
+      .map((e) => ({
+        digit: faker.number
+          .int({ min: 0, max: 999 })
+          .toString()
+          .padStart(3, "0"),
+        digit_id: getId(),
+        amount: faker.number.int({ min: 100, max: 100000 }),
+      }));
+
+    const invoice: InvoiceInput = {
+      name,
+      week: 10,
+      year: 2026,
+      digits,
+    };
+
+    await insertInvoiceAsync(invoice);
+
+    console.log("Finished", i);
+  }
 }

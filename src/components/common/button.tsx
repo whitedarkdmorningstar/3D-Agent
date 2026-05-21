@@ -1,6 +1,6 @@
 import { Variant } from "@/constants/theme/types";
 import useTheme from "@/hooks/use-theme";
-import { getOnVariantColor } from "@/utils/colors";
+import { getOnVariantColor, getOnVariantContainerColor } from "@/utils/colors";
 import React, { useMemo } from "react";
 import { Button as PaperButton } from "react-native-paper";
 
@@ -14,14 +14,19 @@ export default function Button({ variant = "primary", ...props }: ButtonProps) {
 
   const variantColor = useMemo(() => colors[variant], [colors, variant]);
   const textColor = useMemo(
-    () => getOnVariantColor(colors, variant),
-    [colors, variant],
+    () =>
+      mode === "contained"
+        ? getOnVariantColor(colors, variant)
+        : mode === "outlined"
+          ? getOnVariantContainerColor(colors, variant)
+          : undefined,
+    [colors, variant, mode, variantColor],
   );
 
   return (
     <PaperButton
       buttonColor={mode === "contained" ? variantColor : undefined}
-      textColor={mode === "contained" ? textColor : undefined}
+      textColor={textColor}
       {...props}
       style={[
         {
