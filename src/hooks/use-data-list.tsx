@@ -17,6 +17,8 @@ type DataList = {
   orderBy: OrderBy;
   order: Order;
   error: "";
+  isSelectMode: boolean;
+  selectedData: string[];
 };
 
 const initialState: DataList = {
@@ -27,6 +29,8 @@ const initialState: DataList = {
   orderBy: "timestamp",
   order: "DESC",
   error: "",
+  isSelectMode: false,
+  selectedData: [],
 };
 
 export interface DataListHookOutput extends DataList {
@@ -34,6 +38,9 @@ export interface DataListHookOutput extends DataList {
   fetchMoreData: () => void;
   changeOrder: (order: Order) => void;
   changeOrderBy: (orderBy: OrderBy) => void;
+  toggleSelectMode: () => void;
+  moveSelectedToTrash: () => void;
+  toggleSelectItem: (item: Customer | InvoiceOutput) => void;
 }
 
 export type ListName = "invoices" | "customers";
@@ -59,7 +66,7 @@ export default function useDataList(listName: ListName): DataListHookOutput {
       const option = { year, week, orderBy, order };
 
       if (initialFetch) {
-        setState((prev) => ({ ...initialState, data: prev.data }));
+        setState((prev) => ({ ...prev, isLoading: true }));
       } else {
         setState((prev) => ({ ...prev, isFetching: true }));
       }
@@ -68,6 +75,7 @@ export default function useDataList(listName: ListName): DataListHookOutput {
         listName === "invoices"
           ? await fetchInvoicesAsync(option)
           : await fetchCustomersAsync({ ...option, isRandom: false });
+
       setState((prev) => ({
         ...prev,
         data: initialFetch ? data : [...prev.data, ...data],
@@ -79,11 +87,6 @@ export default function useDataList(listName: ListName): DataListHookOutput {
     },
     [],
   );
-
-  // Initial fetch
-  useEffect(() => {
-    fetchInitialData();
-  }, [year, week, state.order, state.orderBy, listName]);
 
   const fetchInitialData = useCallback(async () => {
     fetchDataAsync(listName, year, week, state.orderBy, state.order);
@@ -100,13 +103,53 @@ export default function useDataList(listName: ListName): DataListHookOutput {
     );
   }, [listName, year, week, state.orderBy, state.order]);
 
-  // Change order, orderBy
-  const changeOrder = useCallback((order: Order) => {
-    setState((prev) => ({ ...prev, order }));
+  // Initial fetch
+  useEffect(() => {
+    fetchDataAsync(listName, year, week, state.orderBy, state.order);
   }, []);
 
-  const changeOrderBy = useCallback((orderBy: OrderBy) => {
-    setState((prev) => ({ ...prev, orderBy }));
+  // Change order, orderBy
+  const changeOrder = useCallback(
+    (order: Order) => {
+      setState((prev) => ({ ...prev, order }));
+      fetchDataAsync(listName, year, week, state.orderBy, order);
+    },
+    [listName, year, week, state.orderBy],
+  );
+
+  const changeOrderBy = useCallback(
+    (orderBy: OrderBy) => {
+      setState((prev) => ({ ...prev, orderBy }));
+      fetchDataAsync(listName, year, week, orderBy, state.order);
+    },
+    [listName, year, week, state.order],
+  );
+
+  // Selection
+  const toggleSelectMode = useCallback(
+    () => setState((prev) => ({ ...prev, isSelectMode: !prev.isSelectMode })),
+    [],
+  );
+
+  const toggleSelectItem = useCallback(
+    (item: string) =>
+      setState((prev) => ({
+        ...prev,
+        selectedData: prev.selectedData.includes(item)
+          ? prev.selectedData.filter((i) => i !== item)
+          : [...prev.selectedData, item],
+      })),
+    [],
+  );
+
+  const moveSelectedToTrash = useCallback(() => {
+    // update
+    // Clean out selected items
+    setState((prev) => ({
+      ...prev,
+      selectedData: [],
+      isSelectMode: false,
+    }));
   }, []);
 
   return {

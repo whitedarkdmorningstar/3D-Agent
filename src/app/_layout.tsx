@@ -37,7 +37,7 @@ function App() {
                 title: `စာရင်းအမှတ် #${route.params.id}`,
               })}
             />
-            <Stack.Screen name={"invoices"} options={{ title: "Invoices" }} />
+            <Stack.Screen name={"invoices"} options={{ title: "စာရင်းများ" }} />
             <Stack.Screen
               name={"customer/[name]"}
               options={{ title: "Loading ..." }}

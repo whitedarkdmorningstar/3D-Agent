@@ -66,9 +66,7 @@ export default function AnimatedTabBar({
 
       const isFocused = state.index === index;
 
-      const color = isFocused
-        ? colors.onPrimaryContainer
-        : colors.onSurfaceDisabled;
+      const color = isFocused ? colors.primary : colors.onSurfaceDisabled;
 
       const onPress = () => {
         tabPositionX.value = withTiming(index * buttonWidth + 8, {

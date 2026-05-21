@@ -1,17 +1,19 @@
 import { Order, OrderBy } from "@/constants/invoice/schema";
+import { useSegments } from "expo-router";
 import { useCallback, useState } from "react";
-import { Card, Menu, Text, ToggleButton } from "react-native-paper";
+import { Menu, Text, ToggleButton } from "react-native-paper";
 import Button from "../common/button";
+import Card from "../common/card";
 import Row from "../layout/row";
 
 const orderByBurmese = {
-  timestamp: "ရက်စွဲ",
-  name: "အမည်",
-  digit: "ဂဏန်း",
-  amount: "ပမာဏ",
-  created_at: "ဖန်တီးသည့်ရက်စွဲ",
-  updated_at: "ပြင်ဆင်သည့်ရက်စွဲ",
+  timestamp: { label: "ရက်စွဲ", icon: "calendar-clock" },
+  name: { label: "အမည်", icon: "account" },
+  digit_names: { label: "ဂဏန်း", icon: "numeric" },
+  total_amount: { label: "ပမာဏ", icon: "cash" },
 };
+
+type OrderByKey = keyof typeof orderByBurmese;
 
 type Props = {
   orderBy: OrderBy;
@@ -22,24 +24,24 @@ type Props = {
 
 export default function SortData(props: Props) {
   const [visible, setVisible] = useState(false);
+  const isCustomerPath = useSegments()[0] === "customers";
 
   const closeMenu = useCallback(() => setVisible(false), []);
 
   const openMenu = useCallback(() => setVisible(true), []);
 
   const renderItem = useCallback(
-    (item: OrderBy) =>
-      item !== "created_at" &&
-      item !== "updated_at" && (
-        <Menu.Item
-          key={item}
-          onPress={() => {
-            props.onChangeOrderBy(item);
-            closeMenu();
-          }}
-          title={orderByBurmese[item as keyof typeof orderByBurmese]}
-        />
-      ),
+    (item: OrderBy) => (
+      <Menu.Item
+        key={item}
+        onPress={() => {
+          props.onChangeOrderBy(item);
+          closeMenu();
+        }}
+        leadingIcon={orderByBurmese[item as OrderByKey].icon}
+        title={orderByBurmese[item as OrderByKey].label}
+      />
+    ),
     [props.onChangeOrderBy, closeMenu],
   );
 
@@ -48,30 +50,39 @@ export default function SortData(props: Props) {
       <Button
         mode={"contained"}
         onPress={openMenu}
+        disabled={isCustomerPath}
         icon={"chevron-down"}
         contentStyle={{ flexDirection: "row-reverse" }}
       >
-        {orderByBurmese[props.orderBy as keyof typeof orderByBurmese]}
+        {orderByBurmese[props.orderBy as OrderByKey].label}
       </Button>
     ),
-    [props.orderBy],
+    [props.orderBy, isCustomerPath],
   );
 
   return (
-    <Card style={{ marginVertical: 8, borderRadius: 100, paddingEnd: 8 }}>
+    <Card
+      style={{
+        margin: 8,
+        borderRadius: 100,
+        paddingEnd: 8,
+      }}
+    >
       <Row
-        justifyContent="space-between"
+        justifyContent={"space-between"}
         style={{
           padding: 16,
-          paddingVertical: 8,
+          paddingVertical: 4,
         }}
       >
+        {/**Hide Order By on Customers Screen */}
         <Row gap={8}>
           <Text>စီစဥ်ပုံ</Text>
           <Menu
             visible={visible}
             onDismiss={closeMenu}
             anchorPosition="bottom"
+            style={{ marginTop: 4 }}
             anchor={<Anchor />}
           >
             {(Object.keys(orderByBurmese) as OrderBy[]).map(renderItem)}

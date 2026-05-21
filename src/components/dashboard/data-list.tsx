@@ -1,8 +1,9 @@
 import { Customer, InvoiceOutput } from "@/constants/invoice/schema";
 import { DataListHookOutput } from "@/hooks/use-data-list";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { FlatList, RefreshControl } from "react-native";
 import Legend from "../common/legend";
+import ListActions from "./list-actions";
 import ListItem from "./list-item";
 import SortData from "./sort-data";
 
@@ -35,38 +36,46 @@ export default function DataList(props: DataListProps) {
     [props.isFetching, props.isEnded],
   );
 
-  const Header = useCallback(
-    () => (
+  // Scroll to top
+  const ref = useRef<FlatList>(null);
+
+  const scrollToTop = useCallback(() => {
+    ref.current?.scrollToOffset({ animated: true, offset: 0 });
+  }, []);
+
+  return (
+    <>
       <SortData
         orderBy={props.orderBy}
         order={props.order}
         onChangeOrder={props.changeOrder}
         onChangeOrderBy={props.changeOrderBy}
       />
-    ),
-    [props.order, props.orderBy, props.changeOrder, props.changeOrderBy],
-  );
-
-  return (
-    <FlatList
-      showsVerticalScrollIndicator
-      refreshControl={
-        <RefreshControl
-          refreshing={props.isLoading}
-          onRefresh={props.fetchInitialData}
-        />
-      }
-      contentContainerStyle={{ padding: 16, paddingVertical: 0, gap: 2 }}
-      initialNumToRender={LIMIT}
-      data={props.data}
-      keyExtractor={keyExtractor}
-      renderItem={renderItem}
-      onEndReached={props.fetchMoreData}
-      onEndReachedThreshold={1}
-      ListEmptyComponent={Empty}
-      ListHeaderComponent={Header}
-      stickyHeaderIndices={[0]}
-      ListFooterComponent={Footer}
-    />
+      <FlatList
+        ref={ref}
+        showsVerticalScrollIndicator
+        refreshControl={
+          <RefreshControl
+            refreshing={props.isLoading}
+            onRefresh={props.fetchInitialData}
+          />
+        }
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 0,
+          paddingBottom: 100,
+          gap: 2,
+        }}
+        initialNumToRender={LIMIT}
+        data={props.data}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        onEndReached={props.fetchMoreData}
+        onEndReachedThreshold={1}
+        ListEmptyComponent={Empty}
+        ListFooterComponent={Footer}
+      />
+      <ListActions />
+    </>
   );
 }
