@@ -78,9 +78,9 @@ import { getTotalAmount } from "@/utils/invoice";
 import { getId } from "@/utils/numbers";
 import { faker } from "@faker-js/faker";
 
-export async function seedRandomDataAsync(count: number = 1000) {
+export async function seedRandomDataAsync(count: number = 50) {
   for (let i = 0; i < count; i++) {
-    const name = faker.person.fullName();
+    const name = "Customer " + i.toString().padStart(3, "0");
     const digits = new Array(faker.number.int({ min: 1, max: 10 }))
       .fill(0)
       .map((e) => ({

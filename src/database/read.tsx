@@ -10,7 +10,7 @@ import { generateCurrentWeek } from "@/constants/invoice/week";
 import { Week, Year } from "@/constants/settings/schema";
 import { db } from "./db";
 
-type Options = {
+export type SqliteReadOptions = {
   orderBy: OrderBy;
   order: Order;
   limit: number;
@@ -22,7 +22,7 @@ type Options = {
 };
 
 // Fetch options
-const defaultOptions: Options = {
+export const defaultSqliteReadOptions: SqliteReadOptions = {
   orderBy: "timestamp",
   order: "DESC",
   limit: 10,
@@ -44,9 +44,9 @@ export async function fetchDigitsAsync(
 
 // fetch all invoices with options for pagination, sorting, and filtering by week and year
 export async function fetchInvoicesAsync(
-  fetchOptions: Partial<Options> = defaultOptions,
+  fetchOptions: Partial<SqliteReadOptions> = defaultSqliteReadOptions,
 ): Promise<DashboardInvoice[]> {
-  const options = { ...defaultOptions, ...fetchOptions };
+  const options = { ...defaultSqliteReadOptions, ...fetchOptions };
 
   const invoices: DashboardInvoice[] = await db.getAllAsync(
     `SELECT * FROM invoices WHERE year = ? AND week = ? AND trashed = ? ORDER BY ${options.orderBy} ${options.order} LIMIT ? OFFSET ?`,
@@ -82,18 +82,22 @@ export async function fetchInvoiceAsync(
 
 // fetch customer names, ids
 export async function fetchCustomersAsync(
-  fetchOptions: Partial<Options> = defaultOptions,
+  fetchOptions: Partial<SqliteReadOptions> = defaultSqliteReadOptions,
 ): Promise<Customer[]> {
-  const options = { ...defaultOptions, isRandom: true, ...fetchOptions };
+  const options = {
+    ...defaultSqliteReadOptions,
+    isRandom: true,
+    ...fetchOptions,
+  };
 
   const names = options.isRandom
     ? await db.getAllAsync<Customer>(
-        `SELECT DISTINCT name FROM invoices WHERE trashed = 0 ORDER BY RANDOM() LIMIT ? OFFSET ?`,
-        [options.limit, options.offset],
+        `SELECT DISTINCT name, id FROM invoices WHERE trashed = 0 AND week = ? AND year = ? ORDER BY RANDOM() LIMIT ? OFFSET ?`,
+        [options.week, options.year, options.limit, options.offset],
       )
     : await db.getAllAsync<Customer>(
-        `SELECT DISTINCT name FROM invoices WHERE trashed = 0 ORDER BY ${options.orderBy} ${options.order} LIMIT ? OFFSET ?`,
-        [options.limit, options.offset],
+        `SELECT DISTINCT name, id FROM invoices WHERE trashed = 0 AND week = ? AND year = ? ORDER BY ${options.orderBy} ${options.order} LIMIT ? OFFSET ?`,
+        [options.week, options.year, options.limit, options.offset],
       );
 
   return names;

@@ -58,6 +58,7 @@ export const inoiceOutputSchema = z.object({
 
 export const customerSchema = z.object({
   name: z.string().min(1, "အမည်သည် ကွက်လပ် မဖြစ်ရပါ"),
+  id: z.number(),
 });
 
 // Types

@@ -6,31 +6,30 @@ import {
 } from "@/constants/invoice/schema";
 import { Week, Year } from "@/constants/settings/schema";
 import { fetchCustomersAsync, fetchInvoicesAsync } from "@/database/read";
-import { useCallback, useEffect, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { FlatList } from "react-native";
 import useSettings from "./use-settings";
 
 type DataList = {
   data: InvoiceOutput[] | Customer[];
+  offset: number;
   isLoading: boolean;
   isFetching: boolean;
   isEnded: boolean;
   orderBy: OrderBy;
   order: Order;
   error: "";
-  isSelectMode: boolean;
-  selectedData: string[];
 };
 
 const initialState: DataList = {
   data: [],
+  offset: 0,
   isLoading: true,
   isFetching: false,
   isEnded: false,
   orderBy: "timestamp",
   order: "DESC",
   error: "",
-  isSelectMode: false,
-  selectedData: [],
 };
 
 export interface DataListHookOutput extends DataList {
@@ -38,9 +37,8 @@ export interface DataListHookOutput extends DataList {
   fetchMoreData: () => void;
   changeOrder: (order: Order) => void;
   changeOrderBy: (orderBy: OrderBy) => void;
-  toggleSelectMode: () => void;
-  moveSelectedToTrash: () => void;
-  toggleSelectItem: (item: Customer | InvoiceOutput) => void;
+  flatListRef: RefObject<FlatList<any> | null>;
+  scrollToTop: () => void;
 }
 
 export type ListName = "invoices" | "customers";
@@ -54,34 +52,35 @@ export default function useDataList(listName: ListName): DataListHookOutput {
   const { year, week } = useSettings();
 
   // Fetch data
-  const fetchDataAsync = useCallback(
+  const fetchDataAysnc = useCallback(
     async (
-      listName: ListName,
       year: Year,
       week: Week,
       orderBy: OrderBy,
       order: Order,
+      offset: number = 0,
       initialFetch: boolean = true,
     ) => {
-      const option = { year, week, orderBy, order };
-
-      if (initialFetch) {
-        setState((prev) => ({ ...prev, isLoading: true }));
-      } else {
-        setState((prev) => ({ ...prev, isFetching: true }));
-      }
-
       const data =
         listName === "invoices"
-          ? await fetchInvoicesAsync(option)
-          : await fetchCustomersAsync({ ...option, isRandom: false });
+          ? await fetchInvoicesAsync({ year, week, orderBy, order, offset })
+          : await fetchCustomersAsync({
+              year,
+              week,
+              orderBy,
+              order,
+              offset,
+              isRandom: false,
+            });
+      const dataLength = data.length;
 
       setState((prev) => ({
         ...prev,
         data: initialFetch ? data : [...prev.data, ...data],
         isLoading: false,
         isFetching: false,
-        isEnded: data.length === 0,
+        isEnded: dataLength === 0,
+        offset: initialFetch ? dataLength : prev.offset + dataLength,
         error: "",
       }));
     },
@@ -89,71 +88,69 @@ export default function useDataList(listName: ListName): DataListHookOutput {
   );
 
   const fetchInitialData = useCallback(async () => {
-    fetchDataAsync(listName, year, week, state.orderBy, state.order);
-  }, [listName, year, week, state.orderBy, state.order]);
+    await fetchDataAysnc(year, week, state.orderBy, state.order, 0, true);
+  }, [year, week, state.orderBy, state.order]);
 
   const fetchMoreData = useCallback(async () => {
-    await fetchDataAsync(
-      listName,
+    if (state.isLoading || state.isFetching || state.isEnded)
+      return console.log("Still fetching");
+
+    setState((prev) => ({ ...prev, isFetching: true }));
+
+    await fetchDataAysnc(
       year,
       week,
       state.orderBy,
       state.order,
+      state.offset,
       false,
     );
-  }, [listName, year, week, state.orderBy, state.order]);
+  }, [
+    year,
+    week,
+    state.orderBy,
+    state.order,
+    state.offset,
+    state.isLoading,
+    state.isFetching,
+    state.isEnded,
+  ]);
 
-  // Initial fetch
-  useEffect(() => {
-    fetchDataAsync(listName, year, week, state.orderBy, state.order);
-  }, []);
-
-  // Change order, orderBy
+  // Change order
   const changeOrder = useCallback(
     (order: Order) => {
-      setState((prev) => ({ ...prev, order }));
-      fetchDataAsync(listName, year, week, state.orderBy, order);
+      if (state.order === order) return;
+
+      setState((prev) => ({ ...prev, order, isLoading: true }));
     },
-    [listName, year, week, state.orderBy],
+    [state.order],
   );
 
   const changeOrderBy = useCallback(
     (orderBy: OrderBy) => {
-      setState((prev) => ({ ...prev, orderBy }));
-      fetchDataAsync(listName, year, week, orderBy, state.order);
+      if (state.orderBy === orderBy) return;
+
+      setState((prev) => ({ ...prev, orderBy, isLoading: true }));
     },
-    [listName, year, week, state.order],
+    [state.data],
   );
 
-  // Selection
-  const toggleSelectMode = useCallback(
-    () => setState((prev) => ({ ...prev, isSelectMode: !prev.isSelectMode })),
-    [],
-  );
+  // Fetch Data
+  useEffect(() => {
+    fetchDataAysnc(year, week, state.orderBy, state.order);
+  }, [year, week, state.orderBy, state.order]);
 
-  const toggleSelectItem = useCallback(
-    (item: string) =>
-      setState((prev) => ({
-        ...prev,
-        selectedData: prev.selectedData.includes(item)
-          ? prev.selectedData.filter((i) => i !== item)
-          : [...prev.selectedData, item],
-      })),
-    [],
-  );
+  // Scroll to top
+  const flatListRef = useRef<FlatList>(null);
 
-  const moveSelectedToTrash = useCallback(() => {
-    // update
-    // Clean out selected items
-    setState((prev) => ({
-      ...prev,
-      selectedData: [],
-      isSelectMode: false,
-    }));
+  const scrollToTop = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   }, []);
 
   return {
     ...state,
+    flatListRef,
+    scrollToTop,
     fetchInitialData,
     fetchMoreData,
     changeOrder,
