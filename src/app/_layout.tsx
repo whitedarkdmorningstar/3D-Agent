@@ -1,15 +1,44 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { SettingsProvider } from "@/context/settings.context";
+import useThemeScheme from "@/hooks/use-theme-scheme";
+import { Stack, ThemeProvider } from "expo-router";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <SettingsProvider>
+      <App />
+    </SettingsProvider>
+  );
+}
+
+function App() {
+  const { theme, statusBarStyle } = useThemeScheme();
+
+  return (
+    <KeyboardProvider
+      statusBarTranslucent={true}
+      navigationBarTranslucent={true}
+    >
+      <ThemeProvider value={theme}>
+        <Stack
+          screenOptions={{
+            animation: "ios_from_right",
+            statusBarStyle,
+            statusBarTranslucent: true,
+          }}
+          initialRouteName={"(tabs)"}
+        >
+          <Stack.Screen name={"(tabs)"} options={{ headerShown: false }} />
+          <Stack.Screen
+            name={"invoices"}
+            options={{ headerTitle: "Invoices" }}
+          />
+          <Stack.Screen
+            name={"customers"}
+            options={{ headerTitle: "Customers" }}
+          />
+        </Stack>
+      </ThemeProvider>
+    </KeyboardProvider>
   );
 }
