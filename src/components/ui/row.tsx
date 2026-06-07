@@ -19,7 +19,7 @@ export default function Row(props: RowProps) {
       style={[
         {
           flexDirection: "row",
-          gap: props.gap,
+          gap: props.gap || 16,
           alignItems: props.alignItem || "center",
           justifyContent: props.justifyContent || "center",
         },

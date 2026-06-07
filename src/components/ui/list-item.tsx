@@ -1,5 +1,6 @@
+import { ICON_SIZE } from "@/constants/settings";
 import useTheme from "@/hooks/use-theme";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 import {
   StyleProp,
@@ -18,9 +19,9 @@ export interface ListItemProps extends TouchableOpacityProps {
   subtitleStyle?: StyleProp<TextStyle>;
   description?: string;
   descriptionStyle?: StyleProp<TextStyle>;
-  icon?: React.ComponentProps<typeof Ionicons>["name"];
-  size?: React.ComponentProps<typeof Ionicons>["size"];
-  color?: React.ComponentProps<typeof Ionicons>["color"];
+  icon?: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  size?: React.ComponentProps<typeof MaterialCommunityIcons>["size"];
+  color?: React.ComponentProps<typeof MaterialCommunityIcons>["color"];
   right?: React.ReactNode;
 }
 
@@ -32,7 +33,7 @@ export default function ListItem({
   description,
   descriptionStyle,
   icon,
-  size = 24,
+  size = ICON_SIZE,
   color,
   style,
   right,
@@ -91,7 +92,13 @@ export default function ListItem({
             </Text>
           )}
         </View>
-        {icon && <Ionicons name={icon} size={size} color={colors.text} />}
+        {icon && (
+          <MaterialCommunityIcons
+            name={icon}
+            size={size}
+            color={color || colors.text}
+          />
+        )}
         {right}
       </View>
     </TouchableOpacity>

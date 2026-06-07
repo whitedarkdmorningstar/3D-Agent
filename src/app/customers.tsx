@@ -1,10 +1,5 @@
-import Main from "@/components/ui/main";
-import Text from "@/components/ui/text";
+import CustomersList from "@/components/customers/list";
 
 export default function Customers() {
-  return (
-    <Main>
-      <Text>Customers</Text>
-    </Main>
-  );
+  return <CustomersList />;
 }

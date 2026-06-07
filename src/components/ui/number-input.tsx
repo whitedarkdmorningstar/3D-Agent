@@ -116,7 +116,8 @@ export default function NumberInput({
     >
       {showButtons && (
         <IconButton
-          name="remove"
+          name="minus"
+          backgroundColor={colors.backdrop}
           delayLongPress={300}
           onPressIn={() => updateValue(-step)}
           onLongPress={() => startContinuousUpdate(-step)}
@@ -141,8 +142,9 @@ export default function NumberInput({
       )}
       {showButtons && (
         <IconButton
-          name={"add"}
+          name={"plus"}
           delayLongPress={300}
+          backgroundColor={colors.backdrop}
           onPressIn={() => updateValue(step)}
           onLongPress={() => startContinuousUpdate(step)}
           onPressOut={stopContinuousUpdate}

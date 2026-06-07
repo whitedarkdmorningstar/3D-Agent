@@ -1,5 +1,6 @@
+import { ICON_SIZE } from "@/constants/settings";
 import useTheme from "@/hooks/use-theme";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
   StyleProp,
@@ -72,11 +73,9 @@ export default function RadioGroup({
             >
               {label}
             </Text>
-            <Ionicons
-              name={
-                value === itemValue ? "radio-button-on" : "radio-button-off"
-              }
-              size={24}
+            <MaterialCommunityIcons
+              name={value === itemValue ? "radiobox-marked" : "radiobox-blank"}
+              size={ICON_SIZE}
               color={value === itemValue ? colors.primary : colors.disabled}
             />
           </View>

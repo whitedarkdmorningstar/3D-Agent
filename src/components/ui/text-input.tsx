@@ -1,11 +1,5 @@
 import useTheme from "@/hooks/use-theme";
-import {
-  forwardRef,
-  ReactElement,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import React, { forwardRef, useCallback, useMemo, useState } from "react";
 import {
   FocusEvent,
   TextInput as RNTextInput,
@@ -21,62 +15,62 @@ export interface TextInputProps extends Omit<RNTextInputProps, "style"> {
   textInputStyle?: StyleProp<TextStyle>;
   style?: StyleProp<ViewStyle>;
   containerStyle?: StyleProp<ViewStyle>;
-  left?: ReactElement | string;
-  right?: ReactElement | string;
+  left?: React.ReactNode;
+  right?: React.ReactNode;
   height?: number;
 }
 
 export default forwardRef<RNTextInput, TextInputProps>((props, ref) => {
   const { colors, borderRadius, borderWidth, fontSize, spacing } = useTheme();
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const { left, right, ...rest } = props;
 
   const onFocus = useCallback(
     (e: FocusEvent) => {
       setIsFocused(true);
-      props.onFocus?.(e);
+      rest.onFocus?.(e);
     },
-    [props.onFocus],
+    [rest.onFocus],
   );
 
   const onBlur = useCallback(
     (e: FocusEvent) => {
       setIsFocused(false);
-      props.onBlur?.(e);
+      rest.onBlur?.(e);
     },
-    [props.onBlur],
+    [rest.onBlur],
   );
 
-  const height = props.height || 50;
+  const height = rest.height || 50;
 
   const containerStyle: ViewStyle = useMemo(
     () => ({
       flexDirection: "row",
       alignItems: "center",
       gap: spacing.md,
-      flex: 1,
       borderColor: isFocused ? colors.primary : colors.border,
       borderWidth: isFocused ? borderWidth + 1 : borderWidth,
       paddingHorizontal: spacing.lg,
       borderRadius,
-      height: height - (borderWidth + 1),
+      height,
       alignSelf: "center",
     }),
-    [isFocused, colors, borderWidth, spacing, height],
+    [isFocused, colors, borderWidth, borderRadius, spacing, height],
   );
 
   return (
-    <View style={[{ height }, props.style]}>
-      <View style={[containerStyle, props.containerStyle]}>
-        {typeof props.left === "string" ? (
+    <View style={[rest.style]}>
+      <View style={[containerStyle, rest.containerStyle]}>
+        {typeof left === "string" ? (
           <Text style={{ color: colors.text, fontSize: fontSize.default }}>
-            {props.left}
+            {left}
           </Text>
         ) : (
-          props.left
+          left
         )}
         <RNTextInput
           ref={ref}
-          {...props}
+          {...rest}
           onFocus={onFocus}
           onBlur={onBlur}
           style={[
@@ -86,16 +80,16 @@ export default forwardRef<RNTextInput, TextInputProps>((props, ref) => {
               paddingVertical: 8,
               fontSize: fontSize.default,
             },
-            props.textInputStyle,
+            rest.textInputStyle,
           ]}
           placeholderTextColor={colors.disabled}
         />
-        {typeof props.right === "string" ? (
+        {typeof right === "string" ? (
           <Text style={{ color: colors.text, fontSize: fontSize.default }}>
-            {props.right}
+            {right}
           </Text>
         ) : (
-          props.right
+          right
         )}
       </View>
     </View>

@@ -79,8 +79,12 @@ import { getId } from "@/utils/numbers";
 import { faker } from "@faker-js/faker";
 
 export async function seedRandomDataAsync(count: number = 20) {
+  if (count === 0) return;
+
+  const names = new Array(100).fill(0).map((e) => faker.person.fullName());
+
   for (let i = 0; i < count; i++) {
-    const name = "Customer " + i.toString().padStart(3, "0");
+    const name = names[faker.number.int({ min: 0, max: names.length - 1 })];
     const digits = new Array(faker.number.int({ min: 1, max: 10 }))
       .fill(0)
       .map((e) => ({

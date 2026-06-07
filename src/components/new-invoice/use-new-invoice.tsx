@@ -5,6 +5,8 @@ import {
   invoiceInputSchema,
   ThreeDigit,
 } from "@/constants/invoice/schema";
+import { useCustomers } from "@/context/customers.context";
+import { useInvoices } from "@/context/invoices.context";
 import { useSettings } from "@/context/settings.context";
 import { insertInvoiceAsync } from "@/database/create";
 import { getRoundDigits } from "@/utils/invoice";
@@ -129,6 +131,8 @@ export function useNewInvoice(): NewInvoiceHook {
 
   // Get year and week from settings
   const { year, week } = useSettings();
+  const invoices = useInvoices();
+  const customers = useCustomers();
 
   const handleSubmit = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: "" }));
@@ -149,8 +153,12 @@ export function useNewInvoice(): NewInvoiceHook {
 
       // Reset form after submit
       if (result) {
-        setTimeout(() => setState(initialState), 1000);
+        setTimeout(() => setState(initialState), 500);
         focusNameInput();
+
+        // Refetch the data
+        invoices.fetchInitialData();
+        customers.fetchInitialData();
       } else {
         // TODO: Handle error
       }

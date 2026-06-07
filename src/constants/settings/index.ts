@@ -19,3 +19,5 @@ export const DEFAULT_SETTINGS: Settings = {
   year: new Date().getFullYear(),
   week: generateCurrentWeek(),
 };
+
+export const ICON_SIZE = 22;

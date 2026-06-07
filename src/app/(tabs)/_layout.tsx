@@ -1,4 +1,5 @@
 import Icon from "@/components/ui/icon";
+import useTheme from "@/hooks/use-theme";
 import { Tabs } from "expo-router";
 import { ColorValue, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,18 +11,21 @@ const ICONS = {
   index: (props: IconProps) => (
     <Icon name={props.focused ? "home" : "home-outline"} {...props} />
   ),
-  "new-invoice": (props: IconProps) => <Icon name={"add"} {...props} />,
+  "new-invoice": (props: IconProps) => <Icon name={"plus"} {...props} />,
   settings: (props: IconProps) => (
-    <Icon name={props.focused ? "settings" : "settings-outline"} {...props} />
+    <Icon name={props.focused ? "cog" : "cog-outline"} {...props} />
   ),
 };
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: [styles.tabBar],
+        tabBarStyle: [styles.tabBar, { borderColor: colors.border }],
+        tabBarItemStyle: { height: 60 },
       }}
       screenLayout={(props: any) => (
         <SafeAreaView style={{ flex: 1 }} {...props} />
@@ -47,12 +51,13 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    bottom: 16,
+    bottom: 24,
     width: "80%",
     start: "10%",
     height: 60,
     elevation: 4,
     borderRadius: 100,
-    borderTopWidth: 0,
+    borderTopWidth: 1,
+    borderWidth: 1,
   },
 });

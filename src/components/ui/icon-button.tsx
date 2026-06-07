@@ -1,45 +1,70 @@
+import { ICON_SIZE } from "@/constants/settings";
 import { Variant } from "@/constants/theme";
 import useTheme from "@/hooks/use-theme";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { TouchableHighlight, TouchableHighlightProps } from "react-native";
 
-export interface IconButtonProps extends TouchableOpacityProps {
-  name: React.ComponentProps<typeof Ionicons>["name"];
-  color?: React.ComponentProps<typeof Ionicons>["color"];
-  size?: React.ComponentProps<typeof Ionicons>["size"];
+export interface IconButtonProps extends TouchableHighlightProps {
+  name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  color?: React.ComponentProps<typeof MaterialCommunityIcons>["color"];
+  backgroundColor?: string;
+  size?: React.ComponentProps<typeof MaterialCommunityIcons>["size"];
   variant?: Variant;
   shape?: "circle" | "rounded" | "square";
+  fab?: boolean;
 }
 
 export default function IconButton({
   color,
-  size = 24,
+  backgroundColor,
+  size = ICON_SIZE,
   name,
   variant,
   shape = "circle",
+  fab,
   ...rest
 }: IconButtonProps) {
   const { colors, spacing, borderRadius } = useTheme();
 
   return (
-    <TouchableOpacity
+    <TouchableHighlight
+      underlayColor={colors.border}
       {...rest}
       style={[
         {
-          padding: spacing.md,
-          backgroundColor: colors.backdrop,
+          padding: fab ? spacing.lg : spacing.md,
+          backgroundColor: backgroundColor
+            ? backgroundColor
+            : fab
+              ? colors.backdrop
+              : "transparent",
           borderRadius:
             shape === "circle" ? 100 : shape === "rounded" ? borderRadius : 0,
+          elevation: fab ? 4 : 0,
+          opacity: rest.disabled ? 0.88 : 1,
+          alignItems: "center",
+          justifyContent: "center",
+          borderColor: rest.disabled
+            ? colors.disabled
+            : variant
+              ? colors[variant]
+              : colors.border,
         },
         rest.style,
       ]}
     >
-      <Ionicons
+      <MaterialCommunityIcons
         name={name}
         size={size}
-        color={variant ? colors[variant] : colors.text}
+        color={
+          rest.disabled
+            ? colors.disabled
+            : variant
+              ? colors[variant]
+              : colors.text
+        }
       />
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 }

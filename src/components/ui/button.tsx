@@ -1,14 +1,15 @@
+import { ICON_SIZE } from "@/constants/settings";
 import { TW_COLORS, Variant } from "@/constants/theme";
 import useTheme from "@/hooks/use-theme";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 import {
   ActivityIndicator,
+  StyleProp,
   Text,
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View,
   ViewStyle,
 } from "react-native";
 
@@ -17,8 +18,9 @@ export interface ButtonProps extends TouchableOpacityProps {
   mode?: "outline" | "contained";
   loading?: boolean;
   reverse?: boolean;
-  icon?: React.ComponentProps<typeof Ionicons>["name"];
-  size?: React.ComponentProps<typeof Ionicons>["size"];
+  icon?: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  size?: React.ComponentProps<typeof MaterialCommunityIcons>["size"];
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export default function Button({
@@ -76,23 +78,23 @@ export default function Button({
   );
 
   return (
-    <TouchableOpacity activeOpacity={0.75} {...props}>
-      <View style={[btnStyle, style]}>
+    <TouchableOpacity activeOpacity={0.88} {...props} style={[btnStyle, style]}>
+      <>
         {loading ? (
           <ActivityIndicator animating color={textColor} />
         ) : (
           props.icon && (
-            <Ionicons
+            <MaterialCommunityIcons
               name={props.icon}
-              size={props.size || 24}
+              size={props.size || ICON_SIZE}
               color={
                 mode === "outline" ? colors[variant] : TW_COLORS.gray["50"]
               }
             />
           )
         )}
-        <Text style={[textStyle]}>{props.children}</Text>
-      </View>
+        <Text style={[textStyle, props.textStyle]}>{props.children}</Text>
+      </>
     </TouchableOpacity>
   );
 }

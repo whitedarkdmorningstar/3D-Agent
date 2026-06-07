@@ -36,14 +36,17 @@ export default function ItemList({
         onPress={() =>
           route.push(
             "timestamp" in item
-              ? { pathname: `/invoice/${item.id}`, params: { id: item.id } }
+              ? {
+                  pathname: "/invoice/[id]",
+                  params: { id: item.id },
+                }
               : {
-                  pathname: `/customer/${item.id}`,
+                  pathname: "/customer/[name]",
                   params: { name: item.name },
                 },
           )
         }
-        icon={"chevron-forward"}
+        icon={"chevron-right"}
         key={index.toString() + item.name}
       />
     ),
@@ -57,7 +60,7 @@ export default function ItemList({
         href ? (
           <Button
             reverse
-            icon={"chevron-forward"}
+            icon={"chevron-right"}
             onPress={() => route.push(href)}
           >
             အပြည့်အစုံကြည့်ရန်

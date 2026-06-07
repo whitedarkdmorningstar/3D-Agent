@@ -58,7 +58,11 @@ export const inoiceOutputSchema = z.object({
 
 export const customerSchema = z.object({
   name: z.string().min(1, "အမည်သည် ကွက်လပ် မဖြစ်ရပါ"),
-  id: z.number(),
+});
+
+export const digitSchema = z.object({
+  digit: threeDigitSchema,
+  total_amount: amountSchema,
 });
 
 // Types
@@ -73,3 +77,8 @@ export type InvoiceInput = z.infer<typeof invoiceInputSchema>;
 export type InvoiceOutput = z.infer<typeof inoiceOutputSchema>;
 export type DashboardInvoice = Omit<InvoiceOutput, "digits">;
 export type Customer = z.infer<typeof customerSchema>;
+export interface DigitOutput extends DashboardInvoice {
+  digit: ThreeDigit;
+  amount: Amount;
+}
+export type Digit = z.infer<typeof digitSchema>;

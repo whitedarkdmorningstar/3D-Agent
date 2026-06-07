@@ -1,8 +1,10 @@
 import { InvoiceDigit } from "@/constants/invoice/schema";
 import { useCallback } from "react";
+import Alert from "../ui/alert";
 import Button from "../ui/button";
 import Row from "../ui/row";
 import Section from "../ui/section";
+import Text from "../ui/text";
 import TextInput from "../ui/text-input";
 import DigitForm from "./invoice-digit-form";
 import { useNewInvoice } from "./use-new-invoice";
@@ -32,6 +34,9 @@ export default function InvoiceForm() {
 
   return (
     <Section style={{ gap: 16 }}>
+      <Text mode={"title"}>စာရင်းအသစ်</Text>
+      <Alert name="alert-circle-outline" description={invoice.error} />
+
       <TextInput
         ref={invoice.nameRef}
         value={invoice.name}
@@ -51,7 +56,7 @@ export default function InvoiceForm() {
         </Button>
 
         <Button
-          icon={"add"}
+          icon={"plus"}
           onPress={invoice.addNewDigit}
           variant={"secondary"}
         >
@@ -73,7 +78,7 @@ export default function InvoiceForm() {
         onPress={invoice.handleSubmit}
         disabled={invoice.isLoading || Boolean(invoice.error)}
       >
-        {invoice.isLoading ? "ပြေစာ ဖန်တီးနေသည် ..." : "ပြေစာ ဖန်တီးမည်"}
+        {invoice.isLoading ? "စာရင်း ဖန်တီးနေသည် ..." : "စာရင်း ဖန်တီးမည်"}
       </Button>
     </Section>
   );

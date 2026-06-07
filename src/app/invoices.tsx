@@ -1,10 +1,5 @@
-import Main from "@/components/ui/main";
-import Text from "@/components/ui/text";
+import InvoicesList from "@/components/invoices/list";
 
 export default function Invoices() {
-  return (
-    <Main>
-      <Text>Invoices</Text>
-    </Main>
-  );
+  return <InvoicesList />;
 }
