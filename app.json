@@ -4,34 +4,33 @@
     "slug": "3D-Agent",
     "version": "0.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icon.png",
     "scheme": "3dagent",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#f9fafb",
+        "foregroundImage": "./assets/light-icon.png"
       },
+      "package": "com.three_d_agent.app",
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+          "backgroundColor": "#f9fafb",
+          "image": "./assets/light-icon.png",
+          "width": 128,
+          "dark": {
+            "backgroundColor": "#090e1c",
+            "image": "./assets/dark-icon.png",
+            "width": 128
           }
         }
       ],
@@ -40,6 +39,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "259873cd-ad5a-4758-9c59-3db56abf541e"
+      }
     }
   }
 }

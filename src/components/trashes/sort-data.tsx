@@ -31,7 +31,6 @@ export default function TrashesSortData() {
 
   const handleMoveToTrash = useCallback(() => {
     router.push({
-      // TODO:
       pathname: "/modals/trashes-confirm-modal",
       params: { list: "trashes" },
     });
