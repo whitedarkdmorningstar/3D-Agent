@@ -16,6 +16,8 @@ const nativeOrderOptions = {
 };
 
 export default function DigitsSortData(props: DigitstHookOutput) {
+  if (props.data.length === 0) return null;
+
   return (
     <>
       <Row justifyContent={"space-between"} style={styles.sort}>

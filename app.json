@@ -2,7 +2,7 @@
   "expo": {
     "name": "3D-Agent",
     "slug": "3D-Agent",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "3dagent",
@@ -10,7 +10,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#f9fafb",
-        "foregroundImage": "./assets/light-icon.png"
+        "foregroundImage": "./assets/icon.png"
       },
       "package": "com.three_d_agent.app",
       "predictiveBackGestureEnabled": false
@@ -26,11 +26,11 @@
         {
           "backgroundColor": "#f9fafb",
           "image": "./assets/light-icon.png",
-          "width": 128,
+          "width": 200,
           "dark": {
             "backgroundColor": "#090e1c",
             "image": "./assets/dark-icon.png",
-            "width": 128
+            "width": 200
           }
         }
       ],

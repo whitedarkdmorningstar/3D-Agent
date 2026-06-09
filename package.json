@@ -1,7 +1,7 @@
 {
   "name": "3d-agent",
   "main": "expo-router/entry",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
     "@faker-js/faker": "^10.4.0",

@@ -86,8 +86,7 @@ export default function useDataList(listName: ListName): DataListHookOutput {
   }, [year, week, state.orderBy, state.order]);
 
   const fetchMoreData = useCallback(async () => {
-    if (state.isLoading || state.isFetching || state.isEnded)
-      return console.log("Still fetching");
+    if (state.isLoading || state.isFetching || state.isEnded) return;
 
     setState((prev) => ({ ...prev, isFetching: true }));
 
